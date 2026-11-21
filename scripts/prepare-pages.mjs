@@ -20,12 +20,25 @@ async function cloudflare(path, options = {}) {
   const result = await response.json();
   if (!response.ok || !result.success) {
     const codes = (result.errors || []).map(error => error.code).join(', ');
-    throw new Error('Cloudflare request failed for ' + path.split('?')[0] + ' (HTTP ' + response.status + ', codes ' + codes + ').');
+    const error = new Error('Cloudflare request failed for ' + path.split('?')[0] + ' (HTTP ' + response.status + ', codes ' + codes + ').');
+    error.status = response.status;
+    error.codes = (result.errors || []).map(item => item.code);
+    throw error;
   }
   return result.result;
 }
 
-const { subdomain } = await cloudflare('/workers/subdomain');
+let workersDomain;
+try {
+  workersDomain = await cloudflare('/workers/subdomain');
+} catch (error) {
+  if (error.status !== 404 || !error.codes?.includes(10007)) throw error;
+  workersDomain = await cloudflare('/workers/subdomain', {
+    method: 'PUT',
+    body: JSON.stringify({ subdomain: 'niche-awards-j461e2rr' }),
+  });
+}
+const { subdomain } = workersDomain;
 if (!/^[a-z0-9-]+$/.test(subdomain || '')) {
   throw new Error('Activate the account workers.dev subdomain in the Cloudflare dashboard.');
 }
