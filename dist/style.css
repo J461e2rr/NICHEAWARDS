@@ -206,3 +206,28 @@ html { scroll-behavior: smooth; }
   }
 }
 
+
+
+.voting > p,
+#vote-status,
+#telegram-signin,
+#telegram-signin span,
+.voting button {
+  font-family: Monocraft, monospace;
+  font-weight: 400;
+}
+
+@media (max-width: 680px) {
+  .hero { padding: 24px 0; }
+  .art {
+    min-height: 0;
+    align-items: start;
+    padding-bottom: calc(clamp(150px, 43vw, 210px) * 15 / 13 + 12px);
+  }
+  .trophy {
+    width: clamp(150px, 43vw, 210px);
+    z-index: 2;
+  }
+  .nominations { padding-right: 0; }
+  .voting, .ballot li { overflow-wrap: anywhere; }
+}
