@@ -1,0 +1,207 @@
+﻿@font-face {
+  font-family: Monocraft;
+  src: url(monocraft.ttf) format("truetype");
+  font-display: swap;
+}
+:root {
+  --ink: #363636;
+  --paper: #e0e0e0;
+  --pixel: Monocraft, monospace;
+  color: var(--ink);
+  background: var(--paper);
+  font: 16px/1.5 system-ui, sans-serif;
+}
+* { box-sizing: border-box; }
+body { margin: 0; }
+main { position: relative; isolation: isolate; overflow: clip; }
+.hero {
+  min-height: 100svh;
+  display: grid;
+  place-items: center;
+  position: relative;
+}
+.hero-content {
+  position: relative;
+  z-index: 2;
+  width: min(900px, 93vw);
+  text-align: center;
+  pointer-events: none;
+}
+.art {
+  display: grid;
+  place-items: center;
+  position: relative;
+  min-height: clamp(285px, 48vw, 520px);
+}
+h1 { margin: 0; width: 100%; }
+h1 img { display: block; width: 100%; height: auto; }
+.trophy {
+  position: absolute;
+  z-index: 7;
+  top: 0;
+  left: 0;
+  width: clamp(155px, 30vw, 350px);
+  aspect-ratio: 13 / 15;
+  transform: translate3d(var(--trophy-x, 52vw), var(--trophy-y, 43svh), 0)
+    translate(-50%, -50%) scale(var(--trophy-scale, 1));
+  pointer-events: none;
+}
+.trophy img { display: block; width: 100%; height: 100%; }
+.hero-content p { margin: 15px auto 0; padding: 0 10px; font: clamp(.98rem, 2.05vw, 1.45rem)/1.45 var(--pixel); text-wrap: balance; }
+.glass { position: absolute; inset: 0; pointer-events: none; }
+.shard {
+  position: absolute;
+  left: 0;
+  top: 0;
+  z-index: var(--layer, 1);
+  width: var(--size);
+  aspect-ratio: var(--ratio, 1.5);
+  clip-path: var(--shape);
+  transform: translate3d(var(--x,0px), var(--y,0px), 0) rotate(var(--r,0deg));
+  will-change: transform;
+  pointer-events: auto;
+  touch-action: none;
+  cursor: grab;
+  background: linear-gradient(135deg,#fff4,#fff0 28%,#fff0 60%,#5f657012 84%,#fff4);
+  backdrop-filter: brightness(1.055) contrast(1.025);
+  box-shadow: inset 0 0 3px #fff8;
+}
+.shard::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(122deg,#fff6,#fff0 30%,#fff0 71%,#fff5);
+  clip-path: var(--facet);
+  pointer-events: none;
+}
+.shard:active { cursor: grabbing; }
+.shard--a { --size: clamp(170px, 28vw, 460px); --shape: polygon(0 12%,100% 0,63% 38%,88% 100%,39% 59%,10% 78%); --facet: polygon(0 12%,100% 0,56% 20%,39% 59%); }
+.shard--b { --size: clamp(90px, 13vw, 210px); --shape: polygon(7% 0,100% 25%,70% 54%,83% 100%,0 66%); --facet: polygon(7% 0,100% 25%,42% 37%,0 66%); }
+.shard--c { --size: clamp(55px, 7vw, 108px); --shape: polygon(0 13%,92% 0,85% 80%,38% 100%); --facet: polygon(0 13%,92% 0,51% 35%,38% 100%); }
+.shard--d { --size: clamp(120px, 19vw, 310px); --layer: 3; --shape: polygon(0 1%,100% 20%,66% 57%,76% 100%,44% 72%); --facet: polygon(0 1%,100% 20%,51% 34%,44% 72%); }
+.shard--e { --size: clamp(42px, 5vw, 81px); --layer: 3; --shape: polygon(2% 32%,88% 0,100% 97%); --facet: polygon(2% 32%,88% 0,61% 48%,100% 97%); }
+.shard--f { --size: clamp(130px, 23vw, 370px); --ratio: 2.3; --shape: polygon(0 0,100% 38%,72% 57%,60% 100%,38% 42%); --facet: polygon(0 0,100% 38%,57% 45%,38% 42%); }
+.shard--g { --size: clamp(72px, 10vw, 150px); --layer: 3; --shape: polygon(0 8%,100% 0,67% 49%,70% 100%,29% 64%); --facet: polygon(0 8%,100% 0,57% 22%,29% 64%); }
+.nominations { position: relative; z-index: 2; pointer-events: none; margin: auto; max-width: 1800px; text-align: center; padding: clamp(50px, 8vh, 90px) 0 clamp(65px, 12vh, 145px); }
+.featured { margin-bottom: clamp(24px, 6vw, 70px); padding: 0 16px; }
+.featured span { font: .9rem/1.35 var(--pixel); }
+h3 { margin: .24em 0 0; font: clamp(1.9rem, 6vw, 5.6rem)/1.12 var(--pixel); letter-spacing: -.075em; }
+.nomination-list {
+  display: grid;
+  justify-items: center;
+  gap: clamp(14px, 3vh, 30px);
+  padding: 0 20px;
+  margin: 0;
+  list-style: none;
+  font: clamp(1.05rem, 2.15vw, 1.7rem)/1.32 var(--pixel);
+  text-wrap: balance;
+}
+.visually-hidden { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
+
+
+
+html { scroll-behavior: smooth; }
+.optics { position: absolute; pointer-events: none; }
+.hero-content { z-index: 2; }
+.nominations, .voting { position: relative; z-index: 4; }
+.shard { backdrop-filter: url(#liquid) brightness(1.055) contrast(1.025); }
+.shard--d, .shard--e, .shard--g, .shard--front { --layer: 6; }
+.shard--front {
+  backdrop-filter: url(#liquid) brightness(1.14) contrast(.82);
+  background: linear-gradient(150deg,#fff7,#fff0 50%,#fff5);
+}
+.glass-button {
+  position: relative;
+  display: inline-grid;
+  place-items: center;
+  min-height: 44px;
+  padding: .6em 1.25em;
+  border: 1px solid #fff9;
+  border-radius: .8em;
+  font: inherit;
+  color: #252525;
+  background: linear-gradient(152deg,#fff9 0%,#fff2 52%,#fff6);
+  box-shadow: 0 4px 12px #52526019,inset 0 1px 2px #fffc,inset 0 -1px 3px #6b6b7f25;
+  backdrop-filter: brightness(1.08);
+  backdrop-filter: url(#liquid) brightness(1.08);
+  cursor: pointer;
+  text-decoration: none;
+  transition: background-color .2s, box-shadow .2s;
+}
+.glass-button[hidden] { display: none; }
+.glass-button:hover:not(:disabled) { background-color: #fff6; box-shadow: 0 5px 20px #52526033,inset 0 1px 2px #fffc; }
+.glass-button:focus-visible { outline: 2px solid #5f5073; outline-offset: 4px; }
+.glass-button:disabled { opacity: .52; cursor: default; }
+.vote-link { pointer-events: auto; margin-top: 22px; font: 1.1rem/1.3 var(--pixel); z-index: 7; }
+.voting { max-width: 960px; margin: auto; padding: clamp(42px, 8vw, 100px) 20px clamp(64px, 9vw, 110px); text-align: center; pointer-events: none; }
+.voting h2 { margin: 0; font: clamp(2.6rem, 7vw, 5.6rem)/1.1 var(--pixel); letter-spacing: -.06em; }
+.voting > p { margin: 16px 0; }
+.ballot-summary { min-height: 64px; margin: 18px 0 26px; }
+.ballot-summary strong { font: 1.15rem/1.4 var(--pixel); }
+#vote-status { margin: 5px 0; }
+.ballot { display: grid; grid-template-columns: repeat(4,1fr); gap: 32px 16px; list-style: none; padding: 0; margin: 0; }
+.ballot h3 { font: clamp(1rem,2vw,1.4rem)/1.3 var(--pixel); margin: 0 0 .8em; letter-spacing: normal; }
+.voting button { pointer-events: auto; }
+.ballot button[aria-pressed="true"] { background-color: #d4c7eea1; border-color: #f7f0ff; }
+@media (max-width: 660px) { .ballot { grid-template-columns: repeat(2,1fr); } }
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } .glass-button { transition: none; } }
+
+
+/* Keep the reflection on the glass, including the light text cut through it. */
+.glass-button {
+  color: #f3f3f3;
+  background: #252525;
+  border-color: #fff7;
+  box-shadow: 0 4px 12px #15151a26, inset 0 1px 2px #fff4;
+}
+@supports (backdrop-filter: invert(1)) {
+  .glass-button {
+    background: transparent;
+    backdrop-filter: invert(1);
+    backdrop-filter: url(#liquid) invert(1);
+  }
+  .glass-button > span { color: #fff; mix-blend-mode: difference; }
+  .glass-button:hover:not(:disabled) { background-color: #ffffff1c; }
+  .ballot button[aria-pressed="true"] { background-color: #bca0ef4a; border-color: #ebe1ff; }
+}
+.ballot { grid-template-columns: repeat(2,minmax(0,1fr)); gap: clamp(26px, 6vw, 58px) clamp(12px, 5vw, 55px); }
+.ballot li { min-width: 0; }
+.ballot h3 { text-wrap: balance; }
+.nominations { padding-right: clamp(0px, 25vw, 440px); }
+@media (max-width: 680px) { .nominations { padding-right: clamp(0px, 10vw, 48px); } }
+
+
+.trophy canvas { display: none; }
+.trophy[data-live] img { visibility: hidden; }
+.trophy[data-live] canvas {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+  pointer-events: auto;
+  touch-action: pan-y;
+  cursor: grab;
+}
+.trophy canvas:active { cursor: grabbing; }
+.trophy:focus-visible { outline: 2px solid #555; outline-offset: 4px; }
+
+.trophy-optics {
+  position: absolute;
+  inset: 0;
+  display: none;
+  clip-path: inset(100%);
+  backdrop-filter: brightness(1.035) saturate(1.08);
+  backdrop-filter: url(#liquid) brightness(1.035) saturate(1.08);
+  pointer-events: none;
+}
+.trophy[data-live] .trophy-optics { display: block; }
+.glass-button {
+  border-radius: 0;
+  box-shadow: 0 4px 12px #15151a25, inset 0 1px 2px #fff9, inset 0 -1px 2px #fff3;
+}
+@supports (backdrop-filter: invert(1)) {
+  .glass-button {
+    background-image: linear-gradient(150deg,#fff3,#fff0 40%,#fff0 62%,#fff2);
+  }
+}

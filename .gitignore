@@ -1,0 +1,8 @@
+/dist/server/
+
+/pages-build/
+/wrangler.pages.json
+/wrangler.json
+/.wrangler/
+/.dev.vars*
+/.env*

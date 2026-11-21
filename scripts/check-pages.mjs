@@ -1,0 +1,26 @@
+import { randomBytes } from 'node:crypto';
+import { ballotEndpoint } from '../pages-build/ballot-config.js';
+
+const origin = new URL(process.env.PAGES_URL).origin;
+const preflight = await fetch(ballotEndpoint, {
+  method: 'OPTIONS',
+  headers: {
+    Origin: origin,
+    'Access-Control-Request-Method': 'PUT',
+    'Access-Control-Request-Headers': 'authorization, content-type',
+  },
+  signal: AbortSignal.timeout(10000),
+});
+if (preflight.status !== 204 || preflight.headers.get('Access-Control-Allow-Origin') !== origin) {
+  throw new Error('The voting API did not accept requests from ' + origin);
+}
+const response = await fetch(ballotEndpoint, {
+  headers: { Origin: origin, Authorization: 'Bearer ' + randomBytes(32).toString('hex') },
+  signal: AbortSignal.timeout(10000),
+});
+if (!response.ok) throw new Error('The voting API could not read its D1 database: HTTP ' + response.status);
+const ballot = await response.json();
+if (!Array.isArray(ballot.choices) || ballot.choices.length !== 0 || ballot.revision !== 0) {
+  throw new Error('Unexpected response for an empty ballot.');
+}
+console.log('Voting API and Pages origin verified.');

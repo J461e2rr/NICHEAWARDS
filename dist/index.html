@@ -1,0 +1,86 @@
+﻿<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Нишевая премия — награждение самых нишевых в галактике.">
+  <meta name="theme-color" content="#e0e0e0">
+  <title>Нишевая премия</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body id="top">
+  <svg class="optics" aria-hidden="true" width="0" height="0" xmlns="http://www.w3.org/2000/svg">
+    <filter id="liquid" x="-10%" y="-10%" width="120%" height="120%" color-interpolation-filters="sRGB">
+      <feTurbulence type="fractalNoise" baseFrequency=".019 .028" numOctaves="1" seed="11" result="flow"/>
+      <feDisplacementMap in="SourceGraphic" in2="flow" scale="12" xChannelSelector="R" yChannelSelector="G"/>
+    </filter>
+  </svg>
+  <main>
+    <div class="trophy" role="group">
+      <div class="trophy-optics" aria-hidden="true"></div>
+      <img src="trophy.png" width="520" height="600" alt="Стеклянная статуэтка Нишевой премии" fetchpriority="high">
+    </div>
+      <div class="glass" aria-hidden="true">
+        <div class="shard shard--a" data-angle="-24"></div>
+        <div class="shard shard--b" data-angle="15"></div>
+        <div class="shard shard--c" data-angle="-36"></div>
+        <div class="shard shard--d" data-angle="31"></div>
+        <div class="shard shard--e" data-angle="59"></div>
+        <div class="shard shard--f" data-angle="-12"></div>
+        <div class="shard shard--g shard--front" data-angle="8"></div>
+        <div class="shard shard--f" data-angle="68"></div>
+        <div class="shard shard--c" data-angle="-36"></div>
+        <div class="shard shard--a shard--front" data-angle="17"></div>
+        <div class="shard shard--e" data-angle="-38"></div>
+        <div class="shard shard--b" data-angle="33"></div>
+        <div class="shard shard--g" data-angle="-71"></div>
+        <div class="shard shard--b shard--front" data-angle="-48"></div>
+        <div class="shard shard--f" data-angle="38"></div>
+      </div>
+    <section class="hero" aria-labelledby="title">
+      <div class="hero-content">
+        <div class="art">
+          <h1 id="title"><img src="figma-logo.png" width="828" height="436" alt="Нишевая премия"></h1>
+        </div>
+        <p>Награждение самых нишевых в галактике</p>
+        <a class="glass-button vote-link" href="#voting"><span>ГОЛОСОВАТЬ</span></a>
+      </div>
+    </section>
+    <section class="nominations" id="nominations" aria-labelledby="nomination-title">
+      <h2 class="visually-hidden" id="nomination-title">Номинации</h2>
+      <div class="featured">
+        <span>Главная номинация</span>
+        <h3>Андеграунд года</h3>
+      </div>
+      <ul class="nomination-list" aria-label="Остальные номинации">
+        <li>Недооткрытие года</li>
+        <li>Нишевый стиляга года</li>
+        <li>Нишевый музыкант года</li>
+        <li>Нишевый ютубер года</li>
+        <li>Нишевый разработчик года</li>
+        <li>Нишевый тиктокер года</li>
+        <li>Нишевый художник года</li>
+        <li>Локальный человек-мем года</li>
+        <li>0 просмотров года</li>
+        <li>Недопроект года</li>
+      </ul>
+    </section>
+    <section class="voting" id="voting" aria-labelledby="voting-title">
+      <h2 id="voting-title">Голосование</h2>
+      <p>Выбери до четырёх номинаций. Любой голос можно отменить.</p>
+      <div class="ballot-summary">
+        <strong id="vote-count">0 из 4</strong>
+        <p id="vote-status" role="status">Загружаем голоса…</p>
+        <button class="glass-button" type="button" id="vote-retry" hidden><span>Повторить</span></button>
+      </div>
+      <ul class="ballot" id="ballot"></ul>
+    </section>
+  </main>
+  <script src="motion.js" defer></script>
+  <script src="trophy.js" type="module"></script>
+  <script src="ballot.js" type="module"></script>
+</body>
+</html>
+
+
+
