@@ -2,6 +2,7 @@
 const art = document.querySelector('.art');
 const nominations = document.querySelector('.nominations');
 const motion = matchMedia('(prefers-reduced-motion: reduce)');
+const compact = matchMedia('(max-width: 680px)');
 
 const mix = (start, end, progress) => start + (end - start) * progress;
 let frame;
@@ -10,6 +11,13 @@ function placeTrophy() {
   const start = art.getBoundingClientRect();
   const end = nominations.getBoundingClientRect();
   const stage = trophy.parentElement.getBoundingClientRect();
+  if (compact.matches) {
+    trophy.style.setProperty('--trophy-x', (start.left + start.width / 2 - stage.left) + 'px');
+    trophy.style.setProperty('--trophy-y', (start.bottom - trophy.offsetHeight / 2 - stage.top) + 'px');
+    trophy.style.setProperty('--trophy-scale', '1');
+    trophy.removeAttribute('data-side');
+    return;
+  }
   const distance = Math.max(start.height * .85, 240);
   const progress = Math.min(1, Math.max(0, -start.top / distance));
   const blend = motion.matches ? Number(progress > .5) : progress ** 2 * (3 - 2 * progress);
@@ -30,6 +38,7 @@ function queuePlacement() {
 
 window.addEventListener('scroll', queuePlacement, { passive: true });
 motion.addEventListener('change', queuePlacement);
+compact.addEventListener('change', queuePlacement);
 const observer = new ResizeObserver(queuePlacement);
 observer.observe(art);
 observer.observe(nominations);
