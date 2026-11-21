@@ -20,10 +20,7 @@ async function cloudflare(path, options = {}) {
   const result = await response.json();
   if (!response.ok || !result.success) {
     const codes = (result.errors || []).map(error => error.code).join(', ');
-    const error = new Error('Cloudflare request failed for ' + path.split('?')[0] + ' (HTTP ' + response.status + ', codes ' + codes + ').');
-    error.status = response.status;
-    error.codes = (result.errors || []).map(item => item.code);
-    throw error;
+    throw new Error('Cloudflare request failed for ' + path.split('?')[0] + ' (HTTP ' + response.status + ', codes ' + codes + ').');
   }
   return result.result;
 }
@@ -52,6 +49,14 @@ if (!/^[a-f0-9-]{36}$/i.test(record.uuid || '')) throw new Error('Cloudflare did
 
 database.database_id = record.uuid;
 config.vars.PAGES_ORIGIN = origin;
+const client = process.env.TELEGRAM_CLIENT_ID;
+const telegramSecret = process.env.TELEGRAM_CLIENT_SECRET;
+if (client || telegramSecret) {
+  if (!/^\d+$/.test(client || '') || !telegramSecret) throw new Error('Set Telegram Client ID and Client Secret together.');
+  config.vars.TELEGRAM_CLIENT_ID = client;
+  config.vars.TELEGRAM_RETURN_URL = url;
+  await writeFile(process.env.RUNNER_TEMP + '/niche-worker-secrets.json', JSON.stringify({ TELEGRAM_CLIENT_SECRET: telegramSecret }), { mode: 0o600 });
+}
 config.workers_dev = true;
 config.preview_urls = false;
 const endpoint = 'https://' + config.name + '.' + subdomain + '.workers.dev/api/ballot';
@@ -61,3 +66,4 @@ await cp('dist', 'pages-build', {
   filter: path => !path.split(/[\\/]/).some(part => part === 'server' || part === '.openai'),
 });
 await writeFile('pages-build/ballot-config.js', 'export const ballotEndpoint = ' + JSON.stringify(endpoint) + ';\n');
+

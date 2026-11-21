@@ -1,11 +1,19 @@
-﻿import { ballotEndpoint } from './ballot-config.js';
+import { ballotEndpoint } from './ballot-config.js';
 
 const list = document.querySelector('#ballot');
 const count = document.querySelector('#vote-count');
 const status = document.querySelector('#vote-status');
 const retry = document.querySelector('#vote-retry');
+const telegram = document.querySelector('#telegram-signin');
 const endpoint = ballotEndpoint || '/api/ballot';
 const voterKey = 'niche-awards-voter-v1';
+const sessionKey = 'niche-awards-telegram-v1';
+const login = new URLSearchParams(location.hash.slice(1));
+if (login.has('tg_session') || login.has('tg_error')) {
+  const session = login.get('tg_session');
+  history.replaceState(null, '', '#voting');
+  if (session) { try { localStorage.setItem(sessionKey, session); } catch {} }
+}
 
 let token;
 let choices = [];
@@ -67,6 +75,13 @@ async function request(method, body) {
     method, headers, body: body && JSON.stringify(body),
     cache: 'no-store', signal: AbortSignal.timeout(10000),
   });
+  if (response.status === 401 && (await response.json()).error === 'telegram_login') {
+    localStorage.removeItem(sessionKey);
+    token = null;
+    const error = new Error('Telegram login required');
+    error.telegram = true;
+    throw error;
+  }
   if (!response.ok && response.status !== 409) throw new Error('Ballot request failed');
   const data = await response.json();
   if (!Array.isArray(data.choices) || !Number.isInteger(data.revision)) throw new Error('Invalid ballot response');
@@ -78,14 +93,22 @@ async function request(method, body) {
 async function load() {
   ready = false;
   retry.hidden = true;
+  telegram.hidden = true;
   status.textContent = 'Загружаем голоса…';
   render();
   try {
-    token ||= getToken();
+    token ||= localStorage.getItem(sessionKey) || getToken();
     await request('GET');
     ready = true;
     status.textContent = choices.length === 4 ? 'Лимит выбран. Можно отменить любой голос.' : '';
-  } catch {
+  } catch (error) {
+    if (error.telegram) {
+      telegram.href = new URL('/api/telegram/start', new URL(endpoint, location.href)).href;
+      telegram.hidden = false;
+      status.textContent = login.has('tg_error') ? 'Не удалось подтвердить вход. Попробуй ещё раз.' : 'Подтверди профиль Telegram, чтобы проголосовать.';
+      render();
+      return;
+    }
     status.textContent = 'Голосование пока недоступно. Не удалось связаться с сервером.';
     retry.hidden = false;
   }
@@ -104,7 +127,8 @@ async function update(id) {
     const code = await request('PUT', { choices: next, revision });
     status.textContent = code === 409 ? 'Голоса изменились в другой вкладке. Проверь выбор.' :
       remove ? 'Голос отменён.' : choices.length === 4 ? 'Голос сохранён. Лимит выбран.' : 'Голос сохранён.';
-  } catch {
+  } catch (error) {
+    if (error.telegram) { await load(); return; }
     status.textContent = 'Не удалось подтвердить сохранение. Обнови список голосов.';
     retry.hidden = false;
     ready = false;
@@ -116,3 +140,4 @@ async function update(id) {
 
 retry.addEventListener('click', load);
 load();
+

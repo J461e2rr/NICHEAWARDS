@@ -1,4 +1,6 @@
-﻿const tokenPattern = /^[0-9a-f]{64}$/;
+import { telegramAuth, telegramEnabled, telegramVoter } from './telegram.mjs';
+
+const tokenPattern = /^[0-9a-f]{64}$/;
 const hex = bytes => [...bytes].map(byte => byte.toString(16).padStart(2, '0')).join('');
 
 export async function ballotApi(request, env) {
@@ -23,11 +25,13 @@ export async function ballotApi(request, env) {
 
   const authorization = request.headers.get('Authorization') || '';
   const token = authorization.startsWith('Bearer ') ? authorization.slice(7) : '';
-  if (!tokenPattern.test(token)) return reply({ error: 'authorization' }, 401);
-  const digest = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(token));
+  const identity = telegramEnabled(env) ? await telegramVoter(token, env) : tokenPattern.test(token) ? token : null;
+  if (!identity) return reply({ error: telegramEnabled(env) ? 'telegram_login' : 'authorization' }, 401);
+  const digest = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(identity));
   const voter = hex(new Uint8Array(digest));
+  const table = telegramEnabled(env) ? 'telegram_ballots' : 'nomination_ballots';
   const read = async () => {
-    const row = await env.DB.prepare('SELECT choices, revision FROM nomination_ballots WHERE voter_hash = ?')
+    const row = await env.DB.prepare(`SELECT choices, revision FROM ${table} WHERE voter_hash = ?`)
       .bind(voter).first();
     return row ? { choices: JSON.parse(row.choices), revision: row.revision } : { choices: [], revision: 0 };
   };
@@ -59,11 +63,11 @@ export async function ballotApi(request, env) {
     }
     const next = [...choices].sort((a, b) => a - b);
     const row = await env.DB.prepare(`
-      INSERT INTO nomination_ballots (voter_hash, choices, revision)
-      SELECT ?, ?, 1 WHERE ? = 0 OR EXISTS (SELECT 1 FROM nomination_ballots WHERE voter_hash = ?)
+      INSERT INTO ${table} (voter_hash, choices, revision)
+      SELECT ?, ?, 1 WHERE ? = 0 OR EXISTS (SELECT 1 FROM ${table} WHERE voter_hash = ?)
       ON CONFLICT(voter_hash) DO UPDATE SET
-        choices = excluded.choices, revision = nomination_ballots.revision + 1, updated_at = CURRENT_TIMESTAMP
-      WHERE nomination_ballots.revision = ?
+        choices = excluded.choices, revision = ${table}.revision + 1, updated_at = CURRENT_TIMESTAMP
+      WHERE ${table}.revision = ?
       RETURNING revision
     `).bind(voter, JSON.stringify(next), revision, voter, revision).first();
     if (!row) return reply(await read(), 409);
@@ -76,8 +80,12 @@ export async function ballotApi(request, env) {
 
 export default {
   fetch(request, env) {
-    if (new URL(request.url).pathname === '/api/ballot') return ballotApi(request, env);
+    const path = new URL(request.url).pathname;
+    if (path === '/api/ballot') return ballotApi(request, env);
+    if (['/api/telegram/start', '/api/telegram/callback'].includes(path)) return telegramAuth(request, env);
     return new Response('Not found', { status: 404 });
   },
 };
+
+
 
