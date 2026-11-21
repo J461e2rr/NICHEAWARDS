@@ -20,7 +20,10 @@ async function cloudflare(path, options = {}) {
   const result = await response.json();
   if (!response.ok || !result.success) {
     const codes = (result.errors || []).map(error => error.code).join(', ');
-    throw new Error('Cloudflare request failed for ' + path.split('?')[0] + ' (HTTP ' + response.status + ', codes ' + codes + ').');
+    const error = new Error('Cloudflare request failed for ' + path.split('?')[0] + ' (HTTP ' + response.status + ', codes ' + codes + ').');
+    error.status = response.status;
+    error.codes = (result.errors || []).map(item => item.code);
+    throw error;
   }
   return result.result;
 }
